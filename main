@@ -450,8 +450,11 @@ def main(request):
         formatted_sent_contents = [announce_data]
 
         # Slack に送信
+        # send_report_to_slack 送信直前にログを追加
+        print(f"Sending Slack notification: {formatted_sent_contents}")
         slack_response = send_report_to_slack(formatted_sent_contents)
-        print(slack_response)
+        print(f"Slack response: {slack_response}")
+
 
         if isinstance(slack_response, list) and slack_response:
             announce_data["slack_success"] = slack_response[0].get("success", "error")
