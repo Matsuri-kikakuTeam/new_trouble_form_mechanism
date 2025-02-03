@@ -41,48 +41,39 @@ def process_data(data):
     question_mapping = {
         "listing_id": [
             "01JG110RW2RH31AKY8ETA88D90",
-            "01JH2670XM0K9WRWMJX2VCYWS1",
             "01JBC6M9XJ614AK3BFPKP9P7RV"
             
         ],
         "common_area_id": [
             "01JG35MVJRE2F53ZAWMWC6FEX7",
-            "01JH26VV1DMV0XDH13R92PHDHJ",
             "01JBC6VKZFPMYHM33JJXNCZ8VN"
         ],
         "input_user_id": [
             "01JG35ND3GKWFP1H0QDVQ22PVT",
-            "01JH26W4VFCFF3ARQBBJAZW5RQ",
             "01JBC6VJQA1A05HRH9QZ4JTVFP"
         ],
         "input_by": [
             "01JG35NQ9CAMY15A5P3C1KENW3",
-            "01JH26WDTJJERQF0QD834XX014",
             "01JBC6VF9GDD1VBA8YK67YDWCD"
         ],
         "trouble_id": [
             "01JG35P6BYWJ5AS38YDCVZ0EP8",
-            "01JH26WWEFFS0HZZRXTY1A3SQP",
             "01JBC6VCCC67543EB8TPXKXBKV"
         ],
         "trouble_number": [
             "01JG35PMA1QTHRVPKRBFBZ5TD2",
-            "01JH26XGSF7A3JQE3WZF643KK6",
             "01JFS1VCAESPRAV7AD5WN6S93H"
         ],
         "rq_person": [
             "01JGB5ZEWZYDYMNFHQKVANB5HT",
-            "01JH7E6B4EZQJ01KE4Y56K7PH3",
             "01JJ3K01296MXBG7C9N6FGY0DF"
         ],
         "incident": [
             "01JG35QB3ESV54MKHDPZWB4SCE",
-            "01JH7E6PEQ2BSJ9TKNGRHGK5AN",
             "01JFS11BC23311BM6DP77TNJBB"
         ],
         "request": [
             "01JGB5WMXQBSG8653KZBNWKH0Z",
-            "01JH7E6W7MGNJHHM1Z3CBZFKKR",
             "01JFS0WM68R4NR6K8010Q5KTDB"
         ],
         "handover_id": [
@@ -219,12 +210,12 @@ def making_tour(formatted_data):
             if formatted_data.get('handover_to') == "TASK":
                 cleaner_name = "TASK"
                 cleaner = ["f9afe0ee-424e-4eb8-b294-ae9ff20d4257"]
-            elif formatted_data.get('handover_to') == "CS":
-                cleaner_name = "CS"
+            elif formatted_data.get('handover_to') == "CX":
+                cleaner_name = "CX"
                 cleaner = ["27127fa6-a3ef-41dd-838c-87cb0ebf044f"]
             elif formatted_data.get('handover_to') == "設備機器":
                 cleaner_name = "設備機器"
-                cleaner = ["設備機器"]
+                cleaner = ["b57eac85-8829-4a71-a0a7-4f6ebd8ade08"]
             elif formatted_data.get('handover_to') == "小笠原":  #テスト用
                 cleaner_name = "小笠原"
                 cleaner = ["91af72ff-d537-4cec-9cc4-2a7d9f20b954"]
@@ -239,31 +230,31 @@ def making_tour(formatted_data):
               cleaner_name = "TASK"
               cleaner = ["f9afe0ee-424e-4eb8-b294-ae9ff20d4257"]
           elif trouble == "近隣住人からの問い合わせ":
-              cleaner_name = "CS"
+              cleaner_name = "CX"
               cleaner = ["27127fa6-a3ef-41dd-838c-87cb0ebf044f"]
           elif trouble == "予約日の変動":
-              cleaner_name = "CS"
+              cleaner_name = "CX"
               cleaner = ["27127fa6-a3ef-41dd-838c-87cb0ebf044f"]
           elif trouble == "予約人数の変動":
-              cleaner_name = "CS"
+              cleaner_name = "CX"
               cleaner = ["27127fa6-a3ef-41dd-838c-87cb0ebf044f"]
           elif trouble == "予約部屋の変動":
-              cleaner_name = "CS"
+              cleaner_name = "CX"
               cleaner = ["27127fa6-a3ef-41dd-838c-87cb0ebf044f"]
           elif trouble == "新規予約の承認":
-              cleaner_name = "CS"
+              cleaner_name = "CX"
               cleaner = ["27127fa6-a3ef-41dd-838c-87cb0ebf044f"]
           elif trouble == "アーリーチェックイン":
-              cleaner_name = "CS"
+              cleaner_name = "CX"
               cleaner = ["27127fa6-a3ef-41dd-838c-87cb0ebf044f"]
           elif trouble == "レイトチェックアウト":
-              cleaner_name = "CS"
+              cleaner_name = "CX"
               cleaner = ["27127fa6-a3ef-41dd-838c-87cb0ebf044f"]
           elif trouble == "未チェックアウト":
-              cleaner_name = "CS"
+              cleaner_name = "CX"
               cleaner = ["27127fa6-a3ef-41dd-838c-87cb0ebf044f"]
           elif trouble == "室内の清掃不備・未清掃":
-              cleaner_name = "CS"
+              cleaner_name = "CX"
               cleaner = ["27127fa6-a3ef-41dd-838c-87cb0ebf044f"]
           elif trouble == "オリコン・清掃道具":
               cleaner_name = "TASK"
@@ -287,25 +278,25 @@ def making_tour(formatted_data):
               cleaner_name = "TASK"
               cleaner = ["f9afe0ee-424e-4eb8-b294-ae9ff20d4257"]
           elif trouble == "忘れ物":
-              cleaner_name = "CS"
+              cleaner_name = "CX"
               cleaner = ["27127fa6-a3ef-41dd-838c-87cb0ebf044f"]
           elif trouble == "ゴミ庫・ゴミストッカー":
               cleaner_name = "TASK"
               cleaner = ["f9afe0ee-424e-4eb8-b294-ae9ff20d4257"]
           elif trouble == "TTlock・SmartKB・SmartLock":
               cleaner_name = "設備機器"
-              cleaner = ["設備機器"]
+              cleaner = ["b57eac85-8829-4a71-a0a7-4f6ebd8ade08"]
           elif trouble == "その他の鍵":
               cleaner_name = "TASK"
               cleaner = ["f9afe0ee-424e-4eb8-b294-ae9ff20d4257"]
           elif trouble == "設営・立ち上げ作業":
-              cleaner_name = "setup"
-              cleaner = ["setup"]
+              cleaner_name = "startup"
+              cleaner = ["030e6802-0211-4bba-9910-f778a3a123bb"]
           elif trouble == "自火報":
-              cleaner_name = "CS"
+              cleaner_name = "CX"
               cleaner = ["27127fa6-a3ef-41dd-838c-87cb0ebf044f"]
           elif trouble == "その他":
-              cleaner_name = "CS"
+              cleaner_name = "CX"
               cleaner = ["27127fa6-a3ef-41dd-838c-87cb0ebf044f"]
           elif trouble == "テスト用":
               cleaner_name = "小笠原"
