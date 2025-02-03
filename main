@@ -177,6 +177,10 @@ def making_tour(formatted_data):
     try:
         logging.info("makingTour 実行開始")
 
+        if not formatted_data.get('common_area_id') and not formatted_data.get('listing_id'):
+            logging.error("commonAreaId または listingId が空です。処理を中止します。")
+            raise ValueError("commonAreaIdまたはlistingIdは必須です")
+
         # トークン取得
         token = get_api_token()
         if not token:
@@ -376,6 +380,12 @@ from insertBQ import insert_to_bigquery
 from getInfo import get_property_name_info, get_contract_type_info, get_reservation_info
 
 def main(request):
+
+    logging.basicConfig(level=logging.INFO)  # ログレベルの設定
+
+    logging.info("処理開始")  # ログ出力
+
+
     try:
         # リクエストデータを辞書型で処理
         if isinstance(request, dict):
@@ -389,6 +399,13 @@ def main(request):
         # データの処理
         formatted_data = process_data(request_data)
         response = making_tour(formatted_data)
+
+        if response.get("success") == "error":
+            logging.error(f"APIリクエストが失敗しました: {response['response_data']['error']}")
+            # Slack通知やBigQueryへの処理を続行する
+            # 失敗した情報もBigQueryに記録
+            insert_to_bigquery(formatted_data)
+            return {"message": "APIリクエスト失敗", "data": formatted_data}, 500
 
         # announce_data を初期化
         announce_data = formatted_data.copy() if isinstance(formatted_data, dict) else {}
@@ -494,10 +511,11 @@ def main(request):
 
         print("BQ結果：", BQ)
 
-        if announce_data["success"] == "ok":
-            return {"message": "making_tour APIリクエストが成功しました。", "data": announce_data}, 200
+        if response.get("success") == "error":
+            logging.error(f"APIリクエスト失敗: {response.get('response_data')}")
+            return {"message": "making_tour APIリクエストが失敗しました。", "data": formatted_data}, 500
         else:
-            return {"message": "making_tour APIリクエストが失敗しました。", "data": announce_data}, 500
+            return {"message": "making_tour APIリクエストが成功しました。", "data": formatted_data}, 200
 
     except Exception as e:
         logging.error(f"リクエスト処理中にエラーが発生しました: {str(e)}")
