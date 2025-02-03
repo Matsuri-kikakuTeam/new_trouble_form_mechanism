@@ -2,7 +2,7 @@ import requests
 from datetime import datetime
 
 def send_report_to_slack(sent_contents):
-    slack_token = "xoxb-131037885092-8216377137031-WI14GOtnzbLJXiSxCZg4akR2"
+    slack_token = "トークン"
     success_results = []  # 各レポートの処理結果を辞書形式で格納
 
     try:
@@ -56,14 +56,21 @@ def create_message_payload(report, trouble_contents, assign, property_name):
     created_at = convert_iso_to_custom_format(report.get('created_at'))
     color = (
         "#ED1A3D" if trouble_contents in ["自火報トラブル", "物理鍵トラブル", "TTlockトラブル"]
-        else "#f2c744" if assign == "CX" else "#0000ff"
+        else "#f2c744" if assign == "CX"
+        else "#00FF00" if assign == "設備機器"
+        else "#FFA500" if assign == "startup"
+        else "#0000ff"  
     )
-    user1 = "<!subteam^S07PPNZCB6V>"
-    user2 = "<!subteam^S05NVPXMSNP>"
+
+    user1 = "<!subteam^S07PPNZCB6V>" #cs-tokyo
+    user2 = "<!subteam^S05NVPXMSNP>" #task
+    user3 = "<!subteam^S07LRFPBQH2>" #設備機器
+    user4 = "<!subteam^SFDUBF1CM>" #SU
+    
 
     return {
         "channel": "C07AHJ1T17E",  # Replace with the actual channel ID or name
-        "text": user1 if assign == "CX" else user2,
+        "text": user1 if assign == "CX"  else user3 if assign == "設備機器" else user4 if assign== "startup" else user2,
         "attachments": [
             {
                 "color": color,
