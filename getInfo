@@ -1,0 +1,111 @@
+from google.cloud import bigquery
+
+def get_property_name_info(data):
+
+    # プロジェクトIDを指定
+    project_id = "m2m-core"  # 例: 'm2m-core'
+
+    # BigQueryクライアントの初期化
+    client = bigquery.Client(project=project_id)
+
+    # クエリを作成
+    query = """
+    SELECT name, id FROM `m2m_core_prod.listing` ORDER BY name
+    """
+
+    # クエリの実行
+    query_job = client.query(query)  # クエリを実行
+    results = query_job.result()  # 結果を取得
+
+    # BQの結果をマッピング
+    id_to_name = {row.id: row.name for row in results}
+
+    # dataからlisting_idを取得
+    listing_id = data.get("listing_id")
+
+    # 一致するNameを検索
+    name = id_to_name.get(listing_id)
+
+    if not name:
+        # listing_idと一致するものがない場合
+        common_area_id = data.get("common_area_id")
+
+        if common_area_id:
+            # 次のBQクエリ
+            query = """
+            SELECT name, id, note FROM `m2m_core_prod.common_area_records` ORDER BY name
+            """
+            query_job = client.query(query)
+            results = query_job.result()
+
+            # common_area_idと一致するものを検索
+            for row in results:
+                if row.id == common_area_id:
+                    name = row.name
+                    break
+
+    return name if name else "Not Found"
+
+
+def get_contract_type_info(data):
+
+    # プロジェクトIDを指定
+    project_id = "m2m-core"  # 例: 'm2m-core'
+
+    # BigQueryクライアントの初期化
+    client = bigquery.Client(project=project_id)
+
+    # クエリを作成
+    query = """
+    SELECT room_id, operation_type_ja
+    FROM `m2m-core.dx_001_room.room_operation_type_ja`
+    """
+
+    # クエリの実行
+    query_job = client.query(query)  # クエリを実行
+    results = query_job.result()  # 結果を取得
+
+
+    # BQの結果をマッピング
+    id_to_name = {row.room_id: row.operation_type_ja for row in results}
+
+    # dataからlisting_idを取得
+    listing_id = data.get("listing_id")
+
+    # 一致するNameを検索
+    operation_type = id_to_name.get(listing_id)
+
+    return operation_type if operation_type else "Not Found"
+
+
+def get_reservation_info(data):
+
+    # プロジェクトIDを指定
+    project_id = "m2m-core"  # 例: 'm2m-core'
+
+    # BigQueryクライアントの初期化
+    client = bigquery.Client(project=project_id)
+
+    # クエリを作成
+    query = """
+    SELECT id_on_ota, ota_type, start_date, end_date
+    FROM `m2m-core.m2m_core_prod.reservation`
+    WHERE PARSE_DATE('%Y-%m-%d', end_date) BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH) AND DATE_ADD(CURRENT_DATE(), INTERVAL 6 MONTH)
+    """
+
+    # クエリの実行
+    query_job = client.query(query)  # クエリを実行
+    results = query_job.result()  # 結果を取得
+
+
+    # BQの結果をマッピング
+    id_to_info = {row.id_on_ota: {"ota_type": row.ota_type, "start_date": row.start_date, "end_date": row.end_date} for row in results}
+
+    # dataからlisting_idを取得
+    id_on_ota = data.get("rq_person")
+    
+
+    # 一致する情報を検索
+    reservation_info = id_to_info.get(id_on_ota)
+
+    return reservation_info if reservation_info else {"ota_type": "Not Found", "start_date": None, "end_date": None}
