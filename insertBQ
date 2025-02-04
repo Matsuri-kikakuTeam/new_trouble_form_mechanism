@@ -62,7 +62,89 @@ def insert_to_bigquery(request):
         else:
             data = request.get_json()
 
+        if not data:from google.cloud import bigquery
+from flask import Flask, request, jsonify
+import datetime
+
+# BigQuery クライアントをグローバルスコープで定義
+client = bigquery.Client()
+
+# テーブルの完全な参照
+TABLE_REF = "m2m-core.su_wo.trouble_forms_logs"
+
+def transform_data(data):
+    """
+    データをBigQuery用の形式に変換
+    """
+    created_at = data.get("created_at")
+    if created_at:
+        try:
+            created_at = datetime.datetime.strptime(created_at, "%Y-%m-%d %H:%M:%S").isoformat()
+        except ValueError:
+            raise ValueError("created_at フィールドのフォーマットが無効です。正しいフォーマットは 'YYYY-MM-DD HH:MM:SS' です。")
+    else:
+        created_at = datetime.datetime.now().isoformat()
+
+    transformed_data = {
+        "submission_id": data.get("submission_id"),
+        "created_at": created_at,
+        "listing_id": data.get("listing_id"),
+        "common_area_id": data.get("common_area_id") or None,
+        "input_user_id": data.get("input_user_id") or None,
+        "input_by": data.get("input_by") or None,
+        "trouble_id": data.get("trouble_id") or None,
+        "trouble_number": data.get("trouble_number"),
+        "rq_person": data.get("rq_person"),
+        "incident": data.get("incident"),
+        "request": data.get("request"),
+        "handover_id": data.get("handover_id"),
+        "handover_to" : data.get("handover_to"),
+        "trouble_contents": data.get("trouble_contents"),
+        "making_tour_success": data.get("success"),  # success を making_tour_success に変更
+        "assign": data.get("assign"),
+        "response": data.get("response"),
+        "admin_url": data.get("admin_url"),
+        "cleaner_url": data.get("cleaner_url"),
+        "slack_success": data.get("slack_success"),
+        'property_name': data.get('property_name'),
+        "contract_type": data.get("contract_type"),
+        "route": data.get("route"),
+        "stay_start": data.get("stay_start"),
+        "stay_end": data.get("stay_end"),
+    }
+    return transformed_data
+
+
+def insert_to_bigquery(request):
+    """
+    BigQueryにデータを挿入し、結果を返す
+    """
+    try:
+        # リクエストデータを取得
+        if isinstance(request, dict):
+            data = request
+        else:
+            data = request.get_json()
+
         if not data:
+            return jsonify({'status': 'error', 'message': 'JSON データが空です。'}), 400
+
+        # データを変換
+        transformed_data = transform_data(data)
+        rows_to_insert = [transformed_data]
+
+        # データを挿入
+        errors = client.insert_rows_json(TABLE_REF, rows_to_insert)
+
+        if not errors:  # エラーがない場合
+            return {"status": "success", "message": "データが正常に挿入されました。"}
+        else:  # 挿入時にエラーが発生した場合
+            return {"status": "error", "message": "データ挿入中にエラーが発生しました。", "details": errors}
+    except ValueError as e:
+        return {"status": "error", "message": "入力データのフォーマットエラー", "details": str(e)}
+    except Exception as e:
+        return {"status": "error", "message": "予期しないエラーが発生しました。", "details": str(e)}
+
             return jsonify({'status': 'error', 'message': 'JSON データが空です。'}), 400
 
         # データを変換
