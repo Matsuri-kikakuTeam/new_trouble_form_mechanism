@@ -177,9 +177,15 @@ def making_tour(formatted_data):
     try:
         logging.info("makingTour 実行開始")
 
+        # common_area_id または listing_id が空の場合、エラーレスポンスを返して次の処理へ進む
         if not formatted_data.get('common_area_id') and not formatted_data.get('listing_id'):
-            logging.error("commonAreaId または listingId が空です。処理を中止します。")
-            raise ValueError("commonAreaIdまたはlistingIdは必須です")
+            error_message = "commonAreaId または listingId が空です。処理を中止します。"
+            logging.error(error_message)
+            return {
+                "success": "error",
+                "cleaner_name": [],
+                "response_data": {"error": error_message}
+            }
 
         # トークン取得
         token = get_api_token()
@@ -380,12 +386,6 @@ from insertBQ import insert_to_bigquery
 from getInfo import get_property_name_info, get_contract_type_info, get_reservation_info
 
 def main(request):
-
-    logging.basicConfig(level=logging.INFO)  # ログレベルの設定
-
-    logging.info("処理開始")  # ログ出力
-
-
     try:
         # リクエストデータを辞書型で処理
         if isinstance(request, dict):
@@ -399,13 +399,6 @@ def main(request):
         # データの処理
         formatted_data = process_data(request_data)
         response = making_tour(formatted_data)
-
-        if response.get("success") == "error":
-            logging.error(f"APIリクエストが失敗しました: {response['response_data']['error']}")
-            # Slack通知やBigQueryへの処理を続行する
-            # 失敗した情報もBigQueryに記録
-            insert_to_bigquery(formatted_data)
-            return {"message": "APIリクエスト失敗", "data": formatted_data}, 500
 
         # announce_data を初期化
         announce_data = formatted_data.copy() if isinstance(formatted_data, dict) else {}
@@ -467,8 +460,11 @@ def main(request):
         formatted_sent_contents = [announce_data]
 
         # Slack に送信
+        # send_report_to_slack 送信直前にログを追加
+        print(f"Sending Slack notification: {formatted_sent_contents}")
         slack_response = send_report_to_slack(formatted_sent_contents)
-        print(slack_response)
+        print(f"Slack response: {slack_response}")
+
 
         if isinstance(slack_response, list) and slack_response:
             announce_data["slack_success"] = slack_response[0].get("success", "error")
@@ -511,13 +507,11 @@ def main(request):
 
         print("BQ結果：", BQ)
 
-        if response.get("success") == "error":
-            logging.error(f"APIリクエスト失敗: {response.get('response_data')}")
-            return {"message": "making_tour APIリクエストが失敗しました。", "data": formatted_data}, 500
+        if announce_data["success"] == "ok":
+            return {"message": "making_tour APIリクエストが成功しました。", "data": announce_data}, 200
         else:
-            return {"message": "making_tour APIリクエストが成功しました。", "data": formatted_data}, 200
+            return {"message": "making_tour APIリクエストが失敗しました。", "data": announce_data}, 500
 
     except Exception as e:
         logging.error(f"リクエスト処理中にエラーが発生しました: {str(e)}")
         return {"error": str(e)}, 500
-
